@@ -6,7 +6,15 @@
 
 bool prime_trial(ULLI p);
 bool prime_trial(ULLI p, ULLI up_to);
+
+int generate_D(ULLI p);
+
+bool perfect_square(ULLI p);
+ULLI i_sqrt(ULLI p);
+
 int jacobi_symbol(long long int a, long long int n);
-int mod_pow(int b, ULLI e, int m);
+ULLI mod_pow(ULLI b, ULLI e, ULLI m);
+
+bool miller_rabin(ULLI p);
 
 #endif

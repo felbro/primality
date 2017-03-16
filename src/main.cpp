@@ -2,7 +2,10 @@
 #include <iostream>
 
 int main(int argc, char const *argv[]) {
-  std::cout << jacobi_symbol(28, 9) << '\n';
+  /*ULLI p;
+  std::cin >> p;
+  std::cout << miller_rabin(p) << '\n';
+  std::cout << prime_trial(p) << '\n';*/
 
   return 0;
 }
