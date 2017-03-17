@@ -22,6 +22,70 @@ bool prime_trial(const mpz_class p, const mpz_class up_to) {
   return true;
 }
 
+// TODO:
+bool strong_lucas_prime(const mpz_class n, mpz_class D) {
+  mpz_class delta_n(n + 1);
+
+  return false;
+}
+
+bool weak_lucas_prime(const mpz_class n, mpz_class D) {
+  mpz_class delta_n(n + 1);
+  mpz_class P(1);
+  mpz_class Q((1 - D) / 4);
+  std::vector<mpz_class> Vals;
+  Vals.push_back(1);
+
+  size_t s = mpz_sizeinbase(delta_n.get_mpz_t(), 2) - 1;
+  while (s > 0) {
+    s--;
+    mpz_class to_add;
+    to_add = delta_n >> s;
+    Vals.push_back(to_add & ~1);
+    if ((to_add & 1) == 1)
+      Vals.push_back(to_add);
+  }
+
+  mpz_class U, V;
+  mpz_class new_U, new_V;
+  U = V = new_U = new_V = 1;
+
+  for (size_t i = 1; i < Vals.size(); i++) {
+    if (Vals[i] == 2 * Vals[i - 1]) {
+      new_U = (U * V) % n;
+
+      mpz_class q_res;
+
+      // to_power(q_res, Q, Vals[i - 1]);
+
+      mod_pow(q_res, Q, Vals[i - 1], n);
+
+      // SLOW
+      new_V = (V * V - 2 * q_res) % n;
+
+    } else {
+      mpz_class u_res(P * U + V);
+      new_U = ((u_res + (u_res & 1) * n) / 2) % n;
+
+      mpz_class v_res(D * U + P * V);
+
+      new_V = ((v_res + (v_res & 1) * n) / 2) % n;
+    }
+    U = new_U;
+    V = new_V;
+  }
+
+  return U % n == 0;
+}
+
+void to_power(mpz_class &res, const mpz_class base, mpz_class exp) {
+  res = 1;
+  while (exp > 0) {
+    res *= base;
+    exp--;
+  }
+}
+
 /**
 * Generates the value D for which the jacobi function = -1
 **/
