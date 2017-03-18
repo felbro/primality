@@ -3,9 +3,8 @@
 #include <regex>
 #include <string>
 
-void parse_input(mpz_class &p) {
-  std::string input;
-  std::getline(std::cin, input);
+void parse_input(mpz_class &p, std::string input) {
+
   std::regex not_a_number("[^\\d]");
   std::regex not_a_sign("[^\\d\\-]");
   std::string res = "";
@@ -21,8 +20,9 @@ void parse_input(mpz_class &p) {
 int main(int argc, char const *argv[]) {
 
   mpz_class p;
-
-  parse_input(p);
+  std::string input;
+  std::getline(std::cin, input);
+  parse_input(p, input);
 
   if (p <= 0)
     std::cout << "A prime has to be positive" << '\n';
