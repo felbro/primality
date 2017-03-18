@@ -1,3 +1,4 @@
+#include "prime_1000.h"
 #include "prime_lib.h"
 #include <iostream>
 
@@ -22,90 +23,82 @@ bool prime_trial(const mpz_class p, const mpz_class up_to) {
   return true;
 }
 
-// TODO:
-bool strong_lucas_prime(const mpz_class n, mpz_class D) {
-  mpz_class delta_n(n + 1);
-
-  return false;
+bool prime_trial_1000(const mpz_class p) {
+  for (size_t i = 0; i < F_K_PRIMES_SIZE && f_k_primes[i] < p; i++) {
+    if (p % f_k_primes[i] == 0)
+      return false;
+  }
+  return true;
 }
 
-bool weak_lucas_prime(const mpz_class n, mpz_class D) {
+/**
+* Performs a strong lucas pseudoprime test
+*/
+bool strong_lucas_prime(const mpz_class n) {
+  mpz_class D;
+  generate_D(D, n);
   mpz_class delta_n(n + 1);
   mpz_class P(1);
   mpz_class Q((1 - D) / 4);
-  std::vector<mpz_class> Vals;
-  Vals.push_back(1);
-
-  size_t s = mpz_sizeinbase(delta_n.get_mpz_t(), 2) - 1;
-  while (s > 0) {
-    s--;
-    mpz_class to_add;
-    to_add = delta_n >> s;
-    Vals.push_back(to_add & ~1);
-    if ((to_add & 1) == 1)
-      Vals.push_back(to_add);
+  mpz_class Qk(Q);
+  size_t s = 0;
+  while ((delta_n & 1) == 0) {
+    delta_n >>= 1;
+    s++;
   }
+
+  size_t d = mpz_sizeinbase(delta_n.get_mpz_t(), 2);
 
   mpz_class U, V;
-  mpz_class new_U, new_V;
-  U = V = new_U = new_V = 1;
-
-  for (size_t i = 1; i < Vals.size(); i++) {
-    if (Vals[i] == 2 * Vals[i - 1]) {
-      new_U = (U * V) % n;
-
-      mpz_class q_res;
-
-      // to_power(q_res, Q, Vals[i - 1]);
-
-      mod_pow(q_res, Q, Vals[i - 1], n);
-
-      // SLOW
-      new_V = (V * V - 2 * q_res) % n;
-
-    } else {
+  U = 1;
+  V = 1;
+  for (size_t i = 2; i <= d; i++) {
+    U = (U * V) % n;
+    V = (V * V - 2 * Qk) % n;
+    Qk = (Qk * Qk) % n;
+    if (((delta_n >> (d - i)) & 1) == 1) {
       mpz_class u_res(P * U + V);
-      new_U = ((u_res + (u_res & 1) * n) / 2) % n;
+      mpz_class new_U(((u_res + (u_res & 1) * n) / 2) % n);
 
       mpz_class v_res(D * U + P * V);
+      mpz_class new_V(((v_res + (v_res & 1) * n) / 2) % n);
 
-      new_V = ((v_res + (v_res & 1) * n) / 2) % n;
+      U = new_U;
+      V = new_V;
+      Qk = (Qk * Q) % n;
     }
-    U = new_U;
-    V = new_V;
   }
+  if (U == 0 || V == 0)
+    return true;
 
-  return U % n == 0;
-}
-
-void to_power(mpz_class &res, const mpz_class base, mpz_class exp) {
-  res = 1;
-  while (exp > 0) {
-    res *= base;
-    exp--;
+  for (size_t i = 0; i < s; i++) {
+    V = (V * V - 2 * Qk) % n;
+    Qk = (Qk * Qk) % n;
+    if (V == 0)
+      return true;
   }
+  return false;
 }
 
 /**
 * Generates the value D for which the jacobi function = -1
 **/
-void generate_D(mpz_class &D, const mpz_class p) {
+bool generate_D(mpz_class &D, const mpz_class p) {
   D = 5;
-  for (int i = 0; i < 7; i++) {
+  for (int i = 0;; i++) {
     if (jacobi_symbol(D, p) == -1)
-      return;
-    D = -1 * (abs(D) + 2);
+      return true;
+    if (D < 0)
+      D = -1 * D + 2;
+    else
+      D = -1 * (D + 2);
+
+    if (i == 5 && perfect_square(p))
+      break;
   }
-  if (perfect_square(p)) {
-    D = 0;
-    return;
-  }
-  while (1) {
-    if (jacobi_symbol(D, p) == -1)
-      return;
-    D = -1 * (abs(D) + 2);
-  }
+
   D = 0;
+  return false;
 }
 
 /**

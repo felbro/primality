@@ -1,27 +1,40 @@
 #include "prime_lib.h"
 #include <iostream>
+#include <regex>
+#include <string>
+
+void parse_input(mpz_class &p) {
+  std::string input;
+  std::getline(std::cin, input);
+  std::regex not_a_number("[^\\d]");
+  std::regex not_a_sign("[^\\d\\-]");
+  std::string res = "";
+  regex_replace(std::back_inserter(res), input.begin(), input.end(), not_a_sign,
+                "");
+  input = "";
+  regex_replace(std::back_inserter(input), res.begin() + 1, res.end(),
+                not_a_number, "");
+  input = res[0] + input;
+  p = input;
+}
 
 int main(int argc, char const *argv[]) {
-  mpz_class D, p;
-  p = "203956878356401977405765866929034577280193993314348263094772646453283062"
-      "722701277632936616063144088173312372882677123879538709400158306567338328"
-      "279154499698366071906766440037074217117805690872792848149112022286332144"
-      "876183376326512083574821647933992961249"
-      "917319836219304274280243803104015000563790123";
-  generate_D(D, p);
-  // std::cout << weak_lucas_prime(p, D) << '\n';
-  std::cout << weak_lucas_prime(p, D) << '\n';
 
-  // std::cout << prime_trial(p) << '\n';
-  /*for (int i = 3; i < 11000; i++) {
-    generate_D(D, p);
-    if (weak_lucas_prime(i, D)) {
-      if (!prime_trial(i)) {
-        std::cout << "Wrong at:" << i << '\n';
-      }
-    }
-  }*/
-  // std::cout << miller_rabin(p) << '\n';
+  mpz_class p;
 
+  parse_input(p);
+
+  if (p <= 0)
+    std::cout << "A prime has to be positive" << '\n';
+  else if (p == 1 || p == 2)
+    std::cout << "prime" << '\n';
+  else if (!prime_trial_1000(p))
+    std::cout << "prime trial" << '\n';
+  else if (!miller_rabin(p))
+    std::cout << "miller rabin" << '\n';
+  else if (!strong_lucas_prime(p))
+    std::cout << "lucas" << '\n';
+  else
+    std::cout << "most likely a prime" << '\n';
   return 0;
 }
