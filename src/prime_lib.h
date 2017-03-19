@@ -1,5 +1,20 @@
 #ifndef PRIME_LIB
 #define PRIME_LIB
+/**
+* Header file for prime_lib.cpp which is a primality test library
+* for a Braille-PSW test along with
+* necessary functions and tests, such as Miller-Rabin and
+* Lucas primality tests. The Braille-PSW test is 100%
+* accurate for values < 2^64 and has no known pseudoprimes for
+* values < 2^128. For larger values, the Braille-PSW test
+* is to be used as a probability test since there may
+* be pseudoprimes. However, if any of the tests
+* (braille_psw, miller_rabin, strong_lucas_prime) returns
+* False, the value is certain to be False.
+*
+* @author Felix Broberg
+* @version 2017-03-19
+*/
 
 #include "prime_1000.h"
 #include <cmath>

@@ -1,6 +1,14 @@
 #ifndef PRIME_K
 #define PRIME_K
 
+/**
+* Header file containing an array of all primes < 1000.
+* Used in prime_1000 (prime_lib.cpp) that is used for the
+* Braille-PSW test (braille_psw in prime_lib.cpp).
+*
+* @author Felix Broberg
+* @version 2017-03-19
+*/
 #include <gmpxx.h>
 
 // Size of f_k_primes
