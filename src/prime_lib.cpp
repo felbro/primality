@@ -1,9 +1,11 @@
 #include "prime_1000.h"
 #include "prime_lib.h"
-#include <iostream>
 
 /**
-* Uses trial division to see if it's prime.
+* Naive trial division to test primality
+*
+* @param p  the number to test
+* @return True if p is prime. False otherwise
 */
 bool prime_trial(const mpz_class p) {
   mpz_class up_to;
@@ -12,7 +14,11 @@ bool prime_trial(const mpz_class p) {
 }
 
 /**
-* Uses trial division up to a given value.
+* Naive trial division to test primality up to a given value.
+*
+* @param p  the number to test
+* @param up_to  Up to which value to perfrom trial division.
+* @return True if p is prime. False otherwise
 */
 bool prime_trial(const mpz_class p, const mpz_class up_to) {
   mpz_class i;
@@ -23,7 +29,43 @@ bool prime_trial(const mpz_class p, const mpz_class up_to) {
   return true;
 }
 
+/**
+* Braille-PSW implementation. Performs trial divisions
+* up to 1000, a Miller-Rabin test as well as a strong
+* Lucas primality test. Will produce a correct result for
+* all values < 2^64, and for values < 2^128 no pseudoprimes
+* have been found.
+*
+* @param p  the number to test
+* @return True if p is a probable prime, False if it is not a prime.
+*/
+bool braille_psw(const mpz_class p) {
+  if (!prime_trial_1000(p))
+    return false;
+  if (p < f_k_primes[F_K_PRIMES_SIZE - 1] * f_k_primes[F_K_PRIMES_SIZE - 1])
+    return true;
+  if (!miller_rabin(p))
+    return false;
+  if (!strong_lucas_prime(p))
+    return false;
+  return true;
+}
+
+/**
+* Trial division using primes under 1000.
+* If p < 1000, a list is searched for the value.
+* if p >= 1000, trial division is used.
+*
+* @param p  the number to test
+* @return True if p could be a prime based on the
+*         primes < 1000. False if it cannot be a prime.
+*         If p <= 994009, a return value "true" is a certain
+*         true. Else it is only probable.
+*/
 bool prime_trial_1000(const mpz_class p) {
+  if ((p & 1) == 1 && p < 1000) {
+    return std::binary_search(f_k_primes, f_k_primes + F_K_PRIMES_SIZE, p);
+  }
   for (size_t i = 0; i < F_K_PRIMES_SIZE && f_k_primes[i] < p; i++) {
     if (p % f_k_primes[i] == 0)
       return false;
@@ -32,15 +74,24 @@ bool prime_trial_1000(const mpz_class p) {
 }
 
 /**
-* Performs a strong lucas pseudoprime test
+* Strong lucas primality test.
+* Will, for most odd values, return a correct result.
+* The first strong lucas pseudoprimes are:
+* 5459, 5777, 10877, 16109, 18971, 22499, 24569, 25199, 40309, 58519.
+*
+* @param n  the number to test
+* @return true if n is a probable prime. False if
+*         it is not a prime.
 */
 bool strong_lucas_prime(const mpz_class n) {
   mpz_class D;
-  generate_D(D, n);
+  if (!generate_D(D, n))
+    return false;
   mpz_class delta_n(n + 1);
   mpz_class P(1);
   mpz_class Q((1 - D) / 4);
   mpz_class Qk(Q);
+  // Split delta_n into delta_n = d*2^s
   size_t s = 0;
   while ((delta_n & 1) == 0) {
     delta_n >>= 1;
@@ -52,10 +103,12 @@ bool strong_lucas_prime(const mpz_class n) {
   mpz_class U, V;
   U = 1;
   V = 1;
+  // For U_d = 0 (mod n)
   for (size_t i = 2; i <= d; i++) {
     U = (U * V) % n;
     V = (V * V - 2 * Qk) % n;
     Qk = (Qk * Qk) % n;
+    // Current bit == 1
     if (((delta_n >> (d - i)) & 1) == 1) {
       mpz_class u_res(P * U + V);
       mpz_class new_U(((u_res + (u_res & 1) * n) / 2) % n);
@@ -68,9 +121,10 @@ bool strong_lucas_prime(const mpz_class n) {
       Qk = (Qk * Q) % n;
     }
   }
+  // For U_d = 0 (mod n)
   if (U == 0 || V == 0)
     return true;
-
+  // For V_(d*2^r) = 0 (mod n), where 0 <= r < s.
   for (size_t i = 0; i < s; i++) {
     V = (V * V - 2 * Qk) % n;
     Qk = (Qk * Qk) % n;
@@ -81,28 +135,14 @@ bool strong_lucas_prime(const mpz_class n) {
 }
 
 /**
-* Generates the value D for which the jacobi function = -1
-**/
-bool generate_D(mpz_class &D, const mpz_class p) {
-  D = 5;
-  for (int i = 0;; i++) {
-    if (jacobi_symbol(D, p) == -1)
-      return true;
-    if (D < 0)
-      D = -1 * D + 2;
-    else
-      D = -1 * (D + 2);
-
-    if (i == 5 && perfect_square(p))
-      break;
-  }
-
-  D = 0;
-  return false;
-}
-
-/**
-* Strong primality test in base 2. Returns true if p pseudoprime
+* Miller-Rabin primality test for base 2.
+* Higher rate of pseudoprimes than the strong
+* lucas primality test, but they have no known
+* overlap, making it a suitable combination.
+*
+* @param p  the number to test
+* @return true if n is a probable prime. False if
+*         it is not a prime.
 */
 bool miller_rabin(const mpz_class p) {
   mpz_class d(p - 1);
@@ -126,7 +166,45 @@ bool miller_rabin(const mpz_class p) {
 }
 
 /**
-* Calculates the jacobi symbol (a/n)
+* Generates the value D in (D/p) such that (D/p) = -1.
+* (D/p) is the jacobi symbol.
+*
+* @param D  Reference to the generated D.
+* @param p  Value to be tested
+* @return true if a value D can be found. Else,
+*         p will be a perfect square.
+**/
+bool generate_D(mpz_class &D, const mpz_class p) {
+  D = 5;
+  for (int i = 0;; i++) {
+    if (jacobi_symbol(D, p) == -1)
+      return true;
+    if (D < 0)
+      D = -1 * D + 2;
+    else
+      D = -1 * (D + 2);
+
+    if (i == 5 && perfect_square(p))
+      break;
+  }
+
+  D = 0;
+  return false;
+}
+
+/**
+* Calculates the jacobi symbol (a/n) defined as
+* (a/p) = 0 if a = 0 (mod p)
+* (a/p) = 1 if a != 0 (mod p) and a = x^2 (mod p)
+*                              for some integer x
+* (a/p) = -1 if a != 0 (mod p) and no such x exists
+*
+* As the jacobi symbol is only defined for odd primes p,
+* some further calculations have to be made.
+*
+* @param a  the numerator
+* @param n  the denominator
+* @return the jacobi symbol
 */
 int jacobi_symbol(mpz_class a, mpz_class n) {
   int mult = 1;
@@ -154,7 +232,10 @@ int jacobi_symbol(mpz_class a, mpz_class n) {
 }
 
 /**
-* Returns true if p is a perfect square
+* Checks if the value p is a perfect square
+*
+* @param p  the value to test
+* @return True if p is a perfect square.
 **/
 bool perfect_square(const mpz_class p) {
   mpz_class res(0);
@@ -163,7 +244,12 @@ bool perfect_square(const mpz_class p) {
 }
 
 /**
-* Calculates the integer square root
+* Calculates the integer square root of p and
+* puts the result into res.
+*
+* @param res  reference to the "return" value
+*             - the integer square root of p.
+* @param p  the value to test
 **/
 void i_sqrt(mpz_class &res, const mpz_class p) {
   long long int shift = 2;
@@ -186,13 +272,19 @@ void i_sqrt(mpz_class &res, const mpz_class p) {
 }
 
 /**
+* Calculates modded power of a value.
+*
 * Adapted from
 * Schneier, Bruce (1996). Applied Cryptography: Protocols, Algorithms, and
 * Source Code in C, Second Edition (2nd ed.). Wiley. ISBN 978-0-471-11709-4.
+*
+* @param res  reference to the result - the modded power of a value.
+* @param base the base value.
+* @param exp  the exponent value.
+* @param mod  the mod value.
 **/
 void mod_pow(mpz_class &res, const mpz_class base, const mpz_class exp,
              const mpz_class mod) {
-  // base %= modulus;
   mpz_class m_base(base % mod);
   mpz_class m_exp(exp);
   res = 1;

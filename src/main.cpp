@@ -17,24 +17,33 @@ void parse_input(mpz_class &p, std::string input) {
   p = input;
 }
 
+void prime_print(std::string input, const mpz_class p, bool is_prime) {
+  mpz_class max(std::to_string(ULLONG_MAX));
+  if (is_prime && p <= max)
+    std::cout << input << " is a prime." << '\n';
+  else if (is_prime)
+    std::cout << input << " is most likely a prime." << '\n';
+  else
+    std::cout << input << " is not a prime." << '\n';
+}
+
 int main(int argc, char const *argv[]) {
 
   mpz_class p;
   std::string input;
+  /**********************************/
+  /* Please, use only one of these: */
   std::getline(std::cin, input);
-  parse_input(p, input);
+  // input = "5";
+  /**********************************/
 
+  parse_input(p, input);
+  std::cout << "" << '\n';
   if (p <= 0)
-    std::cout << "A prime has to be positive" << '\n';
+    std::cout << "Only positive integers can be prime." << '\n';
   else if (p == 1 || p == 2)
-    std::cout << "prime" << '\n';
-  else if (!prime_trial_1000(p))
-    std::cout << "prime trial" << '\n';
-  else if (!miller_rabin(p))
-    std::cout << "miller rabin" << '\n';
-  else if (!strong_lucas_prime(p))
-    std::cout << "lucas" << '\n';
+    prime_print(input, p, true);
   else
-    std::cout << "most likely a prime" << '\n';
+    prime_print(input, p, braille_psw(p));
   return 0;
 }
