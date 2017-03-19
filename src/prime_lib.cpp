@@ -80,7 +80,7 @@ bool prime_trial_1000(const mpz_class p) {
   if ((p & 1) == 1 && p < 1000) {
     return std::binary_search(f_k_primes, f_k_primes + F_K_PRIMES_SIZE, p);
   }
-  for (size_t i = 0; i < F_K_PRIMES_SIZE && f_k_primes[i] < p; i++) {
+  for (size_t i = 0; i < F_K_PRIMES_SIZE; i++) {
     if (p % f_k_primes[i] == 0)
       return false;
   }
