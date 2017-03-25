@@ -67,13 +67,12 @@ void prime_print(std::string input, const mpz_class p, bool is_prime) {
 int main(int argc, char const *argv[]) {
 
   mpz_class p;
-  std::string input;
+  std::string input = "";
   /**********************************/
   /* Please, use only one of these: */
   std::getline(std::cin, input);
   // input = "5";
   /**********************************/
-
   parse_input(p, input);
   std::cout << "" << '\n';
   if (p <= 0)
