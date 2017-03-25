@@ -4,7 +4,7 @@
 * input (see marked lines in main function).
 *
 * Performs checks to ensure input > 0.
-* Calls on a Braille-PSW test through braille_psw() for input > 2.
+* Calls on a Braille-PSW test through baillie_psw() for input > 2.
 * Values 1 and 2 are defined as prime from the start, and are not
 * tested.
 *
@@ -60,7 +60,7 @@ void prime_print(std::string input, const mpz_class p, bool is_prime) {
 }
 
 /**
-* Reads input and on a Braille-PSW test through braille_psw() for input > 2.
+* Reads input and on a Braille-PSW test through baillie_psw() for input > 2.
 * Values 1 and 2 are defined as prime from the start, and are not
 * tested. The results are then printed.
 */
@@ -81,6 +81,6 @@ int main(int argc, char const *argv[]) {
   else if (p == 1 || p == 2)
     prime_print(input, p, true);
   else
-    prime_print(input, p, braille_psw(p));
+    prime_print(input, p, baillie_psw(p));
   return 0;
 }

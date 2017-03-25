@@ -6,7 +6,7 @@
 * values < 2^128. For larger values, the Braille-PSW test
 * is to be used as a probability test since there may
 * be pseudoprimes. However, if any of the tests
-* (braille_psw, miller_rabin, strong_lucas_prime) returns
+* (baillie_psw, miller_rabin, strong_lucas_prime) returns
 * False, the value is certain to be False.
 *
 * @author Felix Broberg
@@ -53,7 +53,7 @@ bool prime_trial(const mpz_class p, const mpz_class up_to) {
 * @param p  the number to test
 * @return True if p is a probable prime, False if it is not a prime.
 */
-bool braille_psw(const mpz_class p) {
+bool baillie_psw(const mpz_class p) {
   if (!prime_trial_1000(p))
     return false;
   if (p < f_k_primes[F_K_PRIMES_SIZE - 1] * f_k_primes[F_K_PRIMES_SIZE - 1])
