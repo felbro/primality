@@ -11,4 +11,4 @@ Both input modes require the value to be on a single line. Commas, spaces etc ar
 Execute the generated file (usually done through ./main). The program will await an input and then compute the result. If the value to be checked is greater than 1500 digits, please refer to the input option below.
 
 ### From file
-Execute the generated file with the prime as an argument. This can easily be done through "cat file_name | ./main".
+Execute the generated file with the prime piped through. This can easily be done through "cat file_name | ./main".
