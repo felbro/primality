@@ -1,5 +1,4 @@
-#ifndef PRIME_K
-#define PRIME_K
+#pragma once
 
 /**
 * Header file containing an array of all primes < 1000.
@@ -12,7 +11,7 @@
 #include <gmpxx.h>
 
 // Size of f_k_primes
-#define F_K_PRIMES_SIZE 168
+const uint32_t firstKPrimesSize = 168;
 // Primes < 1000
 static const mpz_class f_k_primes[] = {
     2,   3,   5,   7,   11,  13,  17,  19,  23,  29,  31,  37,  41,  43,
@@ -27,5 +26,3 @@ static const mpz_class f_k_primes[] = {
     709, 719, 727, 733, 739, 743, 751, 757, 761, 769, 773, 787, 797, 809,
     811, 821, 823, 827, 829, 839, 853, 857, 859, 863, 877, 881, 883, 887,
     907, 911, 919, 929, 937, 941, 947, 953, 967, 971, 977, 983, 991, 997};
-
-#endif
