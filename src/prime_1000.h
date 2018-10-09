@@ -1,17 +1,17 @@
 #pragma once
 
 /**
-* Header file containing an array of all primes < 1000.
-* Used in prime_1000 (prime_lib.cpp) that is used for the
-* Braille-PSW test (braille_psw in prime_lib.cpp).
-*
-* @author Felix Broberg
-* @version 2017-03-19
-*/
+ * Header file containing an array of all primes < 1000.
+ * Used in prime_1000 (prime_lib.cpp) that is used for the
+ * Braille-PSW test (braille_psw in prime_lib.cpp).
+ *
+ * @author Felix Broberg
+ * @version 2017-03-19
+ */
 #include <gmpxx.h>
 
 // Size of f_k_primes
-const uint32_t firstKPrimesSize = 168;
+static constexpr uint32_t firstKPrimesSize = 168;
 // Primes < 1000
 static const mpz_class f_k_primes[] = {
     2,   3,   5,   7,   11,  13,  17,  19,  23,  29,  31,  37,  41,  43,
